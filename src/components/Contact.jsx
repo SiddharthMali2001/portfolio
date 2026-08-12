@@ -138,21 +138,25 @@ const ContactForm = () => {
 
       // Try to save to Supabase (optional - won't fail if Supabase isn't available)
       try {
-        const { error: supabaseError } = await supabase
-          .from('contacts')
-          .insert([
-            {
-              name: formData.name,
-              email: formData.email,
-              message: formData.message,
-              created_at: new Date().toISOString()
-            }
-          ]);
+        if (supabase) {
+          const { error: supabaseError } = await supabase
+            .from('contacts')
+            .insert([
+              {
+                name: formData.name,
+                email: formData.email,
+                message: formData.message,
+                created_at: new Date().toISOString()
+              }
+            ]);
 
-        if (supabaseError) {
-          console.warn('Supabase save failed (non-critical):', supabaseError);
+          if (supabaseError) {
+            console.warn('Supabase save failed (non-critical):', supabaseError);
+          } else {
+            console.log('Data also saved to Supabase');
+          }
         } else {
-          console.log('Data also saved to Supabase');
+          console.warn('Supabase is not configured; skipping contact persistence.');
         }
       } catch (supabaseErr) {
         console.warn('Supabase connection failed (non-critical):', supabaseErr);

@@ -12,12 +12,23 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
-    // Check localStorage for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme || 'dark';
+    if (typeof window === 'undefined') {
+      return 'dark';
+    }
+
+    try {
+      const savedTheme = window.localStorage.getItem('theme');
+      return savedTheme || 'dark';
+    } catch {
+      return 'dark';
+    }
   });
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     const root = window.document.documentElement;
     
     // Remove both classes first
@@ -35,8 +46,11 @@ export const ThemeProvider = ({ children }) => {
       document.body.style.color = '#f5f5f5';
     }
     
-    // Save to localStorage
-    localStorage.setItem('theme', theme);
+    try {
+      window.localStorage.setItem('theme', theme);
+    } catch {
+      // Ignore storage failures and keep rendering.
+    }
   }, [theme]);
 
   const toggleTheme = () => {
